@@ -1,10 +1,10 @@
 from django.db import models
-
+from django.utils.text import slugify
 
 class Category(models.Model):
-    name = models.CharField(max_length=250, blank=True, null=True)
-    slug = models.SlugField(max_length=50, unique=True, null=True, blank=True)
-    image_file = models.ImageField(upload_to="uploads/%Y/%m/", blank=True, null=True)
+    name = models.CharField(max_length=250, verbose_name='نام دسته‌بندی')
+    slug = models.SlugField(max_length=50, unique=True, allow_unicode=True)
+    image_file = models.ImageField(upload_to="category/%Y/%m/", blank=True, null=True)
 
     class Meta:
         ordering = ['name']
@@ -12,52 +12,62 @@ class Category(models.Model):
         verbose_name = 'دسته‌بندی'
         verbose_name_plural = 'دسته‌بندی‌ها'
 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name, allow_unicode=True)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
-    class Slider(models.Model):
-        slider = models.ImageField(upload_to="uploads/%Y/%m/")
-        link = models.URLField()
-        created = models.DateTimeField(auto_now_add=True)
+class Slider(models.Model):
+    image = models.ImageField(upload_to="sliders/%Y/%m/", verbose_name='تصویر اسلایدر')
+    link = models.URLField(verbose_name='لینک مرتبط')
+    created = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
 
-        class Meta:
-            verbose_name = 'اسلایدر'
-            verbose_name_plural = 'اسلایدرها'
-
-
+    class Meta:
+        verbose_name = 'اسلایدر'
+        verbose_name_plural = 'اسلایدرها'
 
 class Product(models.Model):
-    nickname = models.CharField(max_length=100, verbose_name='اسم محصول به انگلیسی')
-    name = models.CharField(max_length=100, verbose_name='اسم محصول')
-    price = models.PositiveBigIntegerField(default=0)
-    category = models.ForeignKey(Category, related_name='category', on_delete=models.CASCADE)
-    description = models.TextField()
+    name = models.CharField(max_length=100, verbose_name='نام محصول')
+    english_name = models.CharField(max_length=100, verbose_name='نام انگلیسی محصول')
+    price = models.PositiveBigIntegerField(verbose_name='قیمت')
+    category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE, verbose_name='دسته‌بندی')
+    description = models.TextField(verbose_name='توضیحات')
+    created = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+
+    class Meta:
+        ordering = ['-created']
 
     def __str__(self):
         return self.name
 
-
 class Feature(models.Model):
-    product = models.ForeignKey(Product, verbose_name='محصول', related_name='features', on_delete=models.CASCADE)
-    name = models.CharField(max_length=100, verbose_name='اسم ویزگی')
-    value = models.CharField(max_length=100, verbose_name='ولیو ویزگی')
+    product = models.ForeignKey(Product, related_name='features', on_delete=models.CASCADE, verbose_name='محصول')
+    name = models.CharField(max_length=100, verbose_name='نام ویژگی')
+    value = models.CharField(max_length=100, verbose_name='مقدار ویژگی')
 
     def __str__(self):
-        return f"{self.name}: {self.value}"
+        return f"{self.name} - {self.value}"
 
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE, verbose_name='محصول')
+    image = models.ImageField(upload_to="products/%Y/%m/", verbose_name='تصویر محصول')
+    created = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
 
-class Image(models.Model):
-    post = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images', verbose_name='محصول')
-    image_file = models.ImageField(upload_to="uploads/%Y/%m/", blank=True, null=True, verbose_name='فایل تصویر')
-    created = models.DateTimeField(auto_now=True, verbose_name='تاریخ ایجاد')
-
+    class Meta:
+        ordering = ['-created']
 
 class Review(models.Model):
-    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
-    comment = models.TextField()
-    rating = models.IntegerField()
-    suggested = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE, verbose_name='محصول')
+    comment = models.TextField(verbose_name='نظر کاربر')
+    rating = models.PositiveSmallIntegerField(verbose_name='امتیاز')
+    suggested = models.BooleanField(default=False, verbose_name='پیشنهاد شده')
+    created = models.DateTimeField(auto_now_add=True, verbose_name='تاریخ ایجاد')
+
+    class Meta:
+        ordering = ['-created']
 
     def __str__(self):
-        return f"Review for {self.product.name}"
+        return f"{self.product.name} - {self.rating}"

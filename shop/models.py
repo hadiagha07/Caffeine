@@ -5,6 +5,7 @@ class Category(models.Model):
     name = models.CharField(max_length=250, verbose_name='نام دسته‌بندی')
     slug = models.SlugField(max_length=50, unique=True, allow_unicode=True)
     image_file = models.ImageField(upload_to="category/%Y/%m/", blank=True, null=True)
+    views = models.PositiveIntegerField(default=0, verbose_name='تعداد بازدید')
 
     class Meta:
         ordering = ['name']

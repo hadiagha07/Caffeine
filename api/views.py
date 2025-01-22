@@ -32,3 +32,8 @@ class BaseAPIView(APIView):
 
 
 
+class HomeAPIView(BaseAPIView):
+    def get(self, request):
+        popular_categories = Category.objects.order_by('-views')[:5]
+        latest_products = Product.objects.order_by('-created')
+        special = Product.objects.filter(product_type='شگفت انگیز')

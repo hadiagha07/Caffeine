@@ -31,6 +31,11 @@ class Slider(models.Model):
         verbose_name_plural = 'اسلایدرها'
 
 class Product(models.Model):
+    PRODUCT_TY = [
+        ('شگفت انگیز', 'شگفت انگیز'),
+        ('عادی', 'عادی')
+    ]
+    product_type = models.CharField(max_length=50, choices=PRODUCT_TY, default='عادی', verbose_name='نوع محصول')
     name = models.CharField(max_length=100, verbose_name='نام محصول')
     english_name = models.CharField(max_length=100, verbose_name='نام انگلیسی محصول')
     price = models.PositiveBigIntegerField(verbose_name='قیمت')

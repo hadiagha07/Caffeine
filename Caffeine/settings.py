@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     # Libraries
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_spectacular',
+
 ]
 
 MIDDLEWARE = [
@@ -90,8 +92,26 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'API',
+    'DESCRIPTION': 'مستندات کامل API',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayRequestDuration': True,
+    },
+    'COMPONENT_SPLIT_REQUEST': True,
+}
+
+
 
 
 # Database
@@ -140,6 +160,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+AUTH_USER_MODEL = 'user.User'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

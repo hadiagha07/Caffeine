@@ -24,7 +24,6 @@ class UserManager(BaseUserManager):
         if not phone:
             raise ValueError('شماره تلفن الزامی است')
 
-        # اعتبارسنجی پیشرفته شماره تلفن
         try:
             phone = phonenumbers.parse(phone, "IR")
             if not phonenumbers.is_valid_number(phone):
